@@ -5,14 +5,14 @@
     <ProjectType>Local</ProjectType>
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{1FD947F1-D99E-46FB-8890-04E11E8340C2}</ProjectGuid>
+    <ProjectGuid>{EF2AFADF-B632-4E95-BEB5-7B7109A9E4FD}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ApplicationIcon>
     </ApplicationIcon>
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
-    <AssemblyName>EquityOption</AssemblyName>
+    <AssemblyName>FiniteDifferenceMethods</AssemblyName>
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
     <DefaultClientScript>JScript</DefaultClientScript>
@@ -20,7 +20,7 @@
     <DefaultTargetSchema>IE50</DefaultTargetSchema>
     <DelaySign>false</DelaySign>
     <OutputType>Exe</OutputType>
-    <RootNamespace>EquityOption</RootNamespace>
+    <RootNamespace>FiniteDifferenceMethods</RootNamespace>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <StartupObject>
     </StartupObject>
@@ -101,7 +101,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EquityOption.cs">
+    <Compile Include="FiniteDifferenceMethods.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

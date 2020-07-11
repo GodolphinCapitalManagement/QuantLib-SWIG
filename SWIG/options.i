@@ -354,7 +354,7 @@ class AnalyticHestonEngine : public PricingEngine {
 
         Real calculate(Real c_inf,
                        const boost::function<Real(Real)>& f,
-                       Real maxBound = Null<Real>()) const;
+                       doubleOrNull maxBound = Null<Real>()) const;
 
         Size numberOfEvaluations() const;
         bool isAdaptiveIntegration() const;
@@ -372,7 +372,9 @@ class AnalyticHestonEngine : public PricingEngine {
       Integration(Algorithm intAlgo,
                 const boost::shared_ptr<Integrator>& integrator);
     };
-    enum ComplexLogFormula { Gatheral, BranchCorrection, AndersenPiterbarg };
+    enum ComplexLogFormula { 
+        Gatheral, BranchCorrection, AndersenPiterbarg, AndersenPiterbargOptCV
+    };
     AnalyticHestonEngine(const boost::shared_ptr<HestonModel>& model,
                          Size integrationOrder = 144);
     AnalyticHestonEngine(const boost::shared_ptr<HestonModel>& model,
@@ -381,6 +383,14 @@ class AnalyticHestonEngine : public PricingEngine {
     AnalyticHestonEngine(const boost::shared_ptr<HestonModel>& model,
                      ComplexLogFormula cpxLog, const AnalyticHestonEngine::Integration& itg,
                      Real andersenPiterbargEpsilon = 1e-8);
+
+    %extend {                     
+        std::pair<Real, Real> chF(Real real, Real imag, Time t) const {
+            const std::complex<Real> tmp 
+                = self->chF(std::complex<Real>(real, imag), t);
+            return std::pair<Real, Real>(tmp.real(), tmp.imag());
+        }
+    }
 };
 
 %{
@@ -392,6 +402,21 @@ class COSHestonEngine : public PricingEngine {
   public:
     COSHestonEngine(const boost::shared_ptr<HestonModel>& model,
                     Real L = 16, Size N = 200);
+};
+
+%{
+using QuantLib::ExponentialFittingHestonEngine;
+%}
+
+%shared_ptr(ExponentialFittingHestonEngine)
+class ExponentialFittingHestonEngine : public PricingEngine {
+  public:
+    enum ControlVariate { AndersenPiterbarg, AndersenPiterbargOptCV };
+    
+    ExponentialFittingHestonEngine(
+        const boost::shared_ptr<HestonModel>& model,
+        ControlVariate cv = AndersenPiterbargOptCV,
+        doubleOrNull scaling = Null<Real>());
 };
 
 
@@ -1147,8 +1172,8 @@ using QuantLib::FdmQuantoHelper;
 %shared_ptr(FdmQuantoHelper)
 class FdmQuantoHelper {
   public:
-	FdmQuantoHelper(
-	    const boost::shared_ptr<YieldTermStructure>& rTS,
+    FdmQuantoHelper(
+        const boost::shared_ptr<YieldTermStructure>& rTS,
         const boost::shared_ptr<YieldTermStructure>& fTS,
         const boost::shared_ptr<BlackVolTermStructure>& fxVolTS,
         Real equityFxCorrelation,
@@ -1156,7 +1181,9 @@ class FdmQuantoHelper {
 };
 
 %{
+using QuantLib::LocalVolTermStructure;
 using QuantLib::FdBlackScholesVanillaEngine;
+using QuantLib::FdOrnsteinUhlenbeckVanillaEngine;
 using QuantLib::FdBatesVanillaEngine;
 using QuantLib::FdHestonVanillaEngine;
 %}
@@ -1203,6 +1230,20 @@ class FdBlackScholesVanillaEngine : public PricingEngine {
         }
     }
     #endif
+};
+
+%shared_ptr(FdOrnsteinUhlenbeckVanillaEngine)
+class FdOrnsteinUhlenbeckVanillaEngine : public PricingEngine {
+  public:
+    #if !defined(SWIGPYTHON)
+    %feature("kwargs") FdOrnsteinUhlenbeckVanillaEngine;
+    #endif
+    FdOrnsteinUhlenbeckVanillaEngine(
+        const boost::shared_ptr<OrnsteinUhlenbeckProcess>&,
+        const boost::shared_ptr<YieldTermStructure>& rTS,
+        Size tGrid = 100, Size xGrid = 100, Size dampingSteps = 0,
+        Real epsilon = 0.0001,
+        const FdmSchemeDesc& schemeDesc = FdmSchemeDesc::Douglas());
 };
 
 %shared_ptr(FdBatesVanillaEngine)
@@ -2136,5 +2177,26 @@ class MCEuropeanGJRGARCHEngine : public PricingEngine {
                    seed)
 %}
 #endif
+
+
+%{
+using QuantLib::SpreadOption;
+using QuantLib::KirkSpreadOptionEngine;
+%}
+
+%shared_ptr(SpreadOption);
+class SpreadOption : public MultiAssetOption {
+public:
+  SpreadOption(const boost::shared_ptr<PlainVanillaPayoff>& payoff,
+               const boost::shared_ptr<Exercise>& exercise);
+};
+
+%shared_ptr(KirkSpreadOptionEngine);
+class KirkSpreadOptionEngine : public PricingEngine {
+public:
+  KirkSpreadOptionEngine(const boost::shared_ptr<BlackProcess>& process1,
+                         const boost::shared_ptr<BlackProcess>& process2,
+                         const Handle<Quote>& correlation);
+};
 
 #endif

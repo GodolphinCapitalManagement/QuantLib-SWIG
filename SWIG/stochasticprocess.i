@@ -63,14 +63,14 @@ using QuantLib::StochasticProcess1D;
 class StochasticProcess1D
     : public StochasticProcess {
   public:
-      Real x0();
-      Real drift(Time t, Real x);
-      Real diffusion(Time t, Real x);
-      Real expectation(Time t0, Real x0, Time dt);
-      Real stdDeviation(Time t0, Real x0, Time dt);
-      Real variance(Time t0, Real x0, Time dt);
-      Real evolve(Time t0, Real x0, Time dt, Real dw);
-      Real apply(Real x0, Real dx);
+      Real x0() const;
+      Real drift(Time t, Real x) const;
+      Real diffusion(Time t, Real x) const;
+      Real expectation(Time t0, Real x0, Time dt) const;
+      Real stdDeviation(Time t0, Real x0, Time dt) const;
+      Real variance(Time t0, Real x0, Time dt) const;
+      Real evolve(Time t0, Real x0, Time dt, Real dw) const;
+      Real apply(Real x0, Real dx) const;
 };
 
 #if defined(SWIGCSHARP)
@@ -222,13 +222,24 @@ using QuantLib::HestonProcess;
 %shared_ptr(HestonProcess)
 class HestonProcess : public StochasticProcess {
   public:
-      HestonProcess(const Handle<YieldTermStructure>& riskFreeTS,
+        enum Discretization { PartialTruncation,
+                    FullTruncation,
+                    Reflection,
+                    NonCentralChiSquareVariance,
+                    QuadraticExponential,
+                    QuadraticExponentialMartingale,
+                    BroadieKayaExactSchemeLobatto,
+                    BroadieKayaExactSchemeLaguerre,
+                    BroadieKayaExactSchemeTrapezoidal };
+
+        HestonProcess(const Handle<YieldTermStructure>& riskFreeTS,
 					   const Handle<YieldTermStructure>& dividendTS,
 					   const Handle<Quote>& s0,
 					   Real v0, Real kappa,
-                       Real theta, Real sigma, Real rho);
-                       
-      Handle<Quote> s0();
+                       Real theta, Real sigma, Real rho,
+                       Discretization d = QuadraticExponentialMartingale);
+
+        Handle<Quote> s0();
       Handle<YieldTermStructure> dividendYield();
       Handle<YieldTermStructure> riskFreeRate();
 };
@@ -321,6 +332,22 @@ class GsrProcess : public StochasticProcess1D {
 
 
 %{
+using QuantLib::OrnsteinUhlenbeckProcess;
+%}
+
+%shared_ptr(OrnsteinUhlenbeckProcess)
+class OrnsteinUhlenbeckProcess : public StochasticProcess1D {
+  public:
+    OrnsteinUhlenbeckProcess(
+    	Real speed, Volatility vol, Real x0 = 0.0, Real level = 0.0);
+    	    	
+    Real speed() const;
+    Real volatility() const;
+    Real level() const;
+};
+
+
+%{
 using QuantLib::KlugeExtOUProcess;
 using QuantLib::ExtendedOrnsteinUhlenbeckProcess;
 using QuantLib::ExtOUWithJumpsProcess;
@@ -389,7 +416,6 @@ class KlugeExtOUProcess : public StochasticProcess {
         }
 };
 
-
 %{
 using QuantLib::GJRGARCHProcess;
 %}
@@ -410,6 +436,7 @@ class GJRGARCHProcess : public StochasticProcess {
   Handle<YieldTermStructure> dividendYield();
   Handle<YieldTermStructure> riskFreeRate();
 };
+
 
 
 #endif
