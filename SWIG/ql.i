@@ -30,7 +30,7 @@
 %{
 #include <ql/quantlib.hpp>
 
-#if QL_HEX_VERSION < 0x01190000
+#if QL_HEX_VERSION < 0x01200000
     #error using an old version of QuantLib, please update
 #endif
 
@@ -125,6 +125,9 @@
 
 %include common.i
 %include vectors.i
+%include tuple.i
+%include asianoptions.i
+%include barrieroptions.i
 %include basketoptions.i
 %include blackformula.i
 %include bonds.i
@@ -148,6 +151,7 @@
 %include exercise.i
 %include fdm.i
 %include fittedbondcurve.i
+%include forward.i
 %include forwardcurve.i
 %include fra.i
 %include functions.i
@@ -161,6 +165,7 @@
 %include interestrate.i
 %include interpolation.i
 %include linearalgebra.i
+%include lookbackoptions.i
 %include marketelements.i
 %include money.i
 %include montecarlo.i
@@ -181,10 +186,12 @@
 %include settings.i
 %include shortratemodels.i
 %include slv.i
+%include spreadoption.i
 %include statistics.i
 %include stochasticprocess.i
 %include swap.i
 %include swaption.i
+%include swingoption.i
 %include termstructures.i
 %include timebasket.i
 %include timeseries.i
@@ -193,7 +200,4 @@
 %include volatilities.i
 %include volatilitymodels.i
 %include zerocurve.i
-%include forward.i
-
-// to be deprecated
 %include old_volatility.i
